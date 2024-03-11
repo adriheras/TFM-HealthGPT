@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 8080;
 const MONGO_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET;
 
+const USDA_API_KEY = process.env.USDA_API_KEY;
+const UNSPLASH_CLIENT_ID = process.env.UNSPLASH_CLIENT_ID;
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -134,8 +137,6 @@ async function getCalories(foodName) {
     return 0;
   }
 }
-const USDA_API_KEY = process.env.USDA_API_KEY;
-const UNSPLASH_CLIENT_ID = process.env.UNSPLASH_CLIENT_ID;
 
 async function getImageUrl(foodName) {
   console.log(`Fetching image URL for: ${foodName}`);
