@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, Animated } from 'react-native';
 import CustomAppbar from '../components/CustomAppbar';
 import HealthGrid from '../components/health/HealthGrid';
-import { FAB, SegmentedButtons} from 'react-native-paper';
+import { FAB, SegmentedButtons } from 'react-native-paper';
 import axios from 'axios';
 import AddHealthForm from '../components/health/AddHealthForm';
 import { AuthContext } from '../components/profile/AuthContext';
@@ -37,6 +37,7 @@ const HealthScreen = () => {
 
   useEffect(() => {
     let newFilteredData;
+    const now = new Date(); // Fecha actual
     switch (value) {
       case 'week':
         newFilteredData = apiData.filter(item => {

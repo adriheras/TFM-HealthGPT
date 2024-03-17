@@ -43,7 +43,7 @@ const ExerciseCard = ({ exercise }) => {
                     source="clock-outline"
                     size={20}
                   />
-                  <Text>{` ${timeString}`}</Text> {/* Muestra la hora */}
+                  <Text>{` ${timeString}`}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Icon

@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button, TextInput,HelperText } from 'react-native-paper';
+import React, { useState, useContext } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Button, TextInput, HelperText,  } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAppbar from '../components/CustomAppbar';
+import { AuthContext } from '../components/profile/AuthContext';
 
 const ProfileScreen = () => {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [error, setError] = useState('');
+    const { setIsAuthenticated } = useContext(AuthContext);
+
 
     const handleChangePassword = async () => {
+        if (oldPassword === '' || newPassword === '') {
+            Alert.alert('Error', 'Por favor, rellene todos los campos.');
+            return;
+        }
         try {
-            const response = await fetch('https://API_GATEWAY_URL/change-password', {
+            const response = await fetch('https://API_GATEWAY_URL/authentication/change-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -20,7 +27,6 @@ const ProfileScreen = () => {
                 },
                 body: JSON.stringify({ oldPassword, newPassword })
             });
-
             const data = await response.json();
 
             if (!response.ok) {
@@ -31,14 +37,11 @@ const ProfileScreen = () => {
                     throw new Error(data.error);
                 }
             } else {
-                console.log('Password changed successfully');
                 setIsChangingPassword(false);
                 setError('');
-                // Handle successful password change here
             }
         } catch (error) {
             console.error('Error while changing the password:', error);
-            // Handle other errors here
         }
     };
 
@@ -46,7 +49,7 @@ const ProfileScreen = () => {
         try {
             await AsyncStorage.removeItem('userToken');
             console.log('Logout successful');
-            navigation.navigate('Auth');
+            setIsAuthenticated(false);
         } catch (e) {
             console.error(e);
         }
@@ -95,7 +98,6 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 16,
         backgroundColor: '#f5f5f5',
     },

@@ -1,10 +1,9 @@
 // AddExerciseForm.js
 import React, { useState, useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Text, ActivityIndicator, ToggleButton } from 'react-native-paper';
+import { TextInput, Button, Text, ActivityIndicator, ToggleButton, HelperText } from 'react-native-paper';
 import axios from 'axios';
 import { AuthContext } from '../profile/AuthContext';
-
 
 const AddExerciseForm = ({ onExerciseAdded }) => {
   const {token } = useContext(AuthContext);
@@ -15,6 +14,12 @@ const AddExerciseForm = ({ onExerciseAdded }) => {
     duration: '',
     distance: '',
     calories: '', // Añade calories
+  });
+
+  const [errors, setErrors] = useState({
+    type: false,
+    duration: false,
+    distance: false,
   });
 
   const caloriasPorHora = {
@@ -46,12 +51,33 @@ const AddExerciseForm = ({ onExerciseAdded }) => {
 
   const handleAddExercise = async () => {
     setIsLoading(true); // Indica que la petición está cargando
+    let newErrors = { type: false, duration: false, distance: false };
+
     // Verifica si alguno de los campos está vacío
     for (let field in exerciseData) {
       if (exerciseData[field] == null || exerciseData[field] === '') {
-        alert('Por favor, rellena todos los campos.');
-        return;
+        newErrors[field] = true;
       }
+    }
+
+    // Verifica que la duración y la distancia sean números enteros
+    if (!Number.isInteger(Number(exerciseData.duration))) {
+      newErrors.duration = true;
+    }
+    if (!Number.isInteger(Number(exerciseData.distance))) {
+      newErrors.distance = true;
+    }
+
+    // Verifica si se ha seleccionado un tipo de ejercicio
+  if (exerciseData.type === '') {
+    newErrors.type = true;
+  }
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).some(error => error)) {
+      setIsLoading(false); // Indica que la petición ha terminado
+      return;
     }
 
     try {
@@ -74,7 +100,6 @@ const AddExerciseForm = ({ onExerciseAdded }) => {
 
 
   return (
-    
     <View style={styles.container}>
       <Text style={styles.titleLarge}>Añadir ejercicio</Text>
       <TextInput
@@ -84,7 +109,11 @@ const AddExerciseForm = ({ onExerciseAdded }) => {
         value={exerciseData.duration}
         onChangeText={(value) => handleInputChange('duration', value)}
         style={styles.input}
+        error={!!errors.duration}
       />
+      <HelperText type="error" visible={errors.duration}>
+        La duración debe ser un número entero
+      </HelperText>
       <TextInput
         mode='outlined'
         label="Distancia (km)"
@@ -92,7 +121,11 @@ const AddExerciseForm = ({ onExerciseAdded }) => {
         value={exerciseData.distance}
         onChangeText={(value) => handleInputChange('distance', value)}
         style={styles.input}
+        error={!!errors.distance}
       />
+      <HelperText type="error" visible={errors.distance}>
+        La distancia debe ser un número entero
+      </HelperText>
       <Text style={styles.label}>Tipo de ejercicio:</Text>
       <ToggleButton.Row onValueChange={value => {
         setValue(value);
@@ -107,6 +140,9 @@ const AddExerciseForm = ({ onExerciseAdded }) => {
         <ToggleButton icon="basketball" value="basketball" />
         <ToggleButton icon="tennis" value="tennis" />
       </ToggleButton.Row>
+      <HelperText type="error" visible={errors.type}>
+      Debes seleccionar un tipo de ejercicio
+    </HelperText>
       {isLoading ? (
       <ActivityIndicator size="large" /> // Muestra ActivityIndicator si isLoading es true
     ) : (

@@ -2,7 +2,7 @@ import React from 'react';
 import { Dimensions, View } from 'react-native';
 import { Title, Text } from 'react-native-paper';
 import { LineChart } from 'react-native-chart-kit';
-import { eachDayOfInterval, startOfWeek, endOfWeek, format, eachWeekOfInterval, startOfMonth, endOfMonth, addDays, isWithinInterval, eachMonthOfInterval, getWeek, startOfYear, endOfYear } from 'date-fns';
+import { eachDayOfInterval, startOfWeek, endOfWeek, format, getDaysInMonth, startOfMonth, endOfMonth, addDays, isWithinInterval, eachMonthOfInterval, getWeek, startOfYear, endOfYear } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const HealthChart = ({ selectedParameter, data, selectedValue, selectedDate }) => {
@@ -29,24 +29,25 @@ const HealthChart = ({ selectedParameter, data, selectedValue, selectedDate }) =
             return dayData.length > 0 ? totalValue / dayData.length : 0;
         });
     } else if (selectedValue === 'month') {
-        labels = eachWeekOfInterval({ start: startOfMonth(selectedDate), end: endOfMonth(selectedDate) })
-            .map((date, index, array) => {
-                const startOfWeekDate = addDays(startOfMonth(selectedDate), index * 7);
-                const endOfWeekDate = index === array.length - 1 ? endOfMonth(selectedDate) : addDays(startOfWeekDate, 6);
-                return `${format(startOfWeekDate, 'dd')} - ${format(endOfWeekDate, 'dd')}`;
-            });
+    const currentMonth = new Date();
+    const daysInMonth = getDaysInMonth(currentMonth);
+    labels = Array.from({ length: Math.ceil(daysInMonth / 7) }, (_, i) => {
+        const startDay = i * 7 + 1;
+        const endDay = Math.min((i + 1) * 7, daysInMonth);
+        return `${startDay.toString().padStart(2, '0')} - ${endDay.toString().padStart(2, '0')}`;
+    });
 
-        dataset = labels.map((label, index) => {
-            const weekStart = addDays(startOfMonth(selectedDate), index * 7);
-            const weekEnd = index === labels.length - 1 ? endOfMonth(selectedDate) : addDays(weekStart, 6);
-            const weekData = data.filter(item => {
-                const itemDate = new Date(item.fecha);
-                return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
-            });
-            const weekTotal = weekData.reduce((total, item) => total + item.value, 0);
-            return weekData.length > 0 ? weekTotal / weekData.length : 0;
+    dataset = labels.map((label, index) => {
+        const weekStart = addDays(startOfMonth(selectedDate), index * 7);
+        const weekEnd = index === labels.length - 1 ? endOfMonth(selectedDate) : addDays(weekStart, 6);
+        const weekData = data.filter(item => {
+            const itemDate = new Date(item.fecha);
+            return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
         });
-    } else if (selectedValue === 'year') {
+        const weekTotal = weekData.reduce((total, item) => total + item.value, 0);
+        return weekData.length > 0 ? weekTotal / weekData.length : 0;
+    });
+}else if (selectedValue === 'year') {
         labels = eachMonthOfInterval({ start: startOfYear(selectedDate), end: endOfYear(selectedDate) })
             .map(date => date.toLocaleString('default', { month: 'narrow' }));
         dataset = labels.map((label, index) => {
@@ -87,7 +88,7 @@ const HealthChart = ({ selectedParameter, data, selectedValue, selectedDate }) =
         <View>
             <Title style={{ textAlign: 'center', fontSize: 24 }}>{selectedParameter}</Title>
             <Title style={{ textAlign: 'center', fontSize: 16, marginBottom: '20px' }}>{titleSuffix}</Title>
-            <Text variant="bodySmall" style={{ textAlign: 'left', marginLeft: '40px' }}>{yAxisSuffix}</Text> {/* Add this line */}
+            <Text variant="bodySmall" style={{ textAlign: 'left', marginLeft: '40px' }}>{yAxisSuffix}</Text>
             <LineChart
                 data={{
                     labels: labels,

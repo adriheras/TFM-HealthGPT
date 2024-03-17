@@ -2,7 +2,7 @@ import React from 'react';
 import { Dimensions, View } from 'react-native';
 import { Text, Title } from 'react-native-paper';
 import { LineChart } from 'react-native-chart-kit';
-import { eachDayOfInterval, startOfWeek, endOfWeek, format, eachWeekOfInterval, startOfMonth, endOfMonth, addDays, isWithinInterval, eachMonthOfInterval, startOfYear, endOfYear, getWeek } from 'date-fns';
+import { eachDayOfInterval, startOfWeek, endOfWeek, format, getDaysInMonth, startOfMonth, endOfMonth, addDays, isWithinInterval, eachMonthOfInterval, startOfYear, endOfYear, getWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const Legend = ({ color, label }) => (
@@ -47,35 +47,36 @@ const HealthPAChart = ({ selectedParameter, data, selectedValue, selectedDate })
 
         labels = labels.map(date => format(date, 'E', { locale: es }));
     } else if (selectedValue === 'month') {
-        labels = eachWeekOfInterval({ start: startOfMonth(selectedDate), end: endOfMonth(selectedDate) })
-            .map((date, index, array) => {
-                const startOfWeekDate = addDays(startOfMonth(selectedDate), index * 7);
-                const endOfWeekDate = index === array.length - 1 ? endOfMonth(selectedDate) : addDays(startOfWeekDate, 6);
-                return `${format(startOfWeekDate, 'dd')} - ${format(endOfWeekDate, 'dd')}`;
-            });
+    const currentMonth = new Date();
+    const daysInMonth = getDaysInMonth(currentMonth);
+    labels = Array.from({ length: Math.ceil(daysInMonth / 7) }, (_, i) => {
+        const startDay = i * 7 + 1;
+        const endDay = Math.min((i + 1) * 7, daysInMonth);
+        return `${startDay.toString().padStart(2, '0')} - ${endDay.toString().padStart(2, '0')}`;
+    });
 
-        systolicDataset = labels.map((label, index) => {
-            const weekStart = addDays(startOfMonth(selectedDate), index * 7);
-            const weekEnd = index === labels.length - 1 ? endOfMonth(selectedDate) : addDays(weekStart, 6);
-            const weekData = data.filter(item => {
-                const itemDate = new Date(item.fecha);
-                return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
-            });
-            const weekTotalSystolic = weekData.reduce((total, item) => total + item.value[0], 0);
-            return weekData.length > 0 ? weekTotalSystolic / weekData.length : 0;
+    systolicDataset = labels.map((label, index) => {
+        const weekStart = addDays(startOfMonth(selectedDate), index * 7);
+        const weekEnd = index === labels.length - 1 ? endOfMonth(selectedDate) : addDays(weekStart, 6);
+        const weekData = data.filter(item => {
+            const itemDate = new Date(item.fecha);
+            return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
         });
+        const weekTotalSystolic = weekData.reduce((total, item) => total + item.value[0], 0);
+        return weekData.length > 0 ? weekTotalSystolic / weekData.length : 0;
+    });
 
-        diastolicDataset = labels.map((label, index) => {
-            const weekStart = addDays(startOfMonth(selectedDate), index * 7);
-            const weekEnd = index === labels.length - 1 ? endOfMonth(selectedDate) : addDays(weekStart, 6);
-            const weekData = data.filter(item => {
-                const itemDate = new Date(item.fecha);
-                return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
-            });
-            const weekTotalDiastolic = weekData.reduce((total, item) => total + item.value[1], 0);
-            return weekData.length > 0 ? weekTotalDiastolic / weekData.length : 0;
+    diastolicDataset = labels.map((label, index) => {
+        const weekStart = addDays(startOfMonth(selectedDate), index * 7);
+        const weekEnd = index === labels.length - 1 ? endOfMonth(selectedDate) : addDays(weekStart, 6);
+        const weekData = data.filter(item => {
+            const itemDate = new Date(item.fecha);
+            return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
         });
-    } else if (selectedValue === 'year') {
+        const weekTotalDiastolic = weekData.reduce((total, item) => total + item.value[1], 0);
+        return weekData.length > 0 ? weekTotalDiastolic / weekData.length : 0;
+    });
+} else if (selectedValue === 'year') {
         labels = eachMonthOfInterval({ start: startOfYear(selectedDate), end: endOfYear(selectedDate) })
             .map(date => date.toLocaleString('default', { month: 'narrow' }));
 

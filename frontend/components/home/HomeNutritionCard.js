@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { Card, Title, Text } from 'react-native-paper';
 import { StyleSheet, Dimensions } from 'react-native';
-import { format,isSameDay, addDays, isWithinInterval, eachDayOfInterval, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachMonthOfInterval, startOfYear, endOfYear, getDaysInMonth  } from 'date-fns';
+import { format, addSeconds, addMinutes, addHours,isSameDay, addDays, isWithinInterval, eachDayOfInterval, startOfWeek, endOfWeek, eachWeekOfInterval, startOfMonth, endOfMonth, eachMonthOfInterval, startOfYear, endOfYear, getDaysInMonth  } from 'date-fns';
 import { AuthContext } from '../profile/AuthContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { BarChart } from 'react-native-chart-kit';
@@ -30,8 +30,6 @@ const HomeNutritionCard = ({ selectedValue }) => {
       })
         .then(response => response.json())
         .then(data => {
-          console.log('Data:', data); // Log the data received from the server
-
           let labels = [];
           let dataset = [];
           if (selectedValue === 'week') {
@@ -39,21 +37,15 @@ const HomeNutritionCard = ({ selectedValue }) => {
               start: startOfWeek(new Date(), { weekStartsOn: 1 }),
               end: endOfWeek(new Date(), { weekStartsOn: 1 })
             }).map(date => format(date, 'E', { locale: es }));
-            console.log('Labels:', labels); // Log the labels
-
             const weekDays = eachDayOfInterval({
               start: startOfWeek(new Date(), { weekStartsOn: 1 }),
               end: endOfWeek(new Date(), { weekStartsOn: 1 })
             }).map(date => date);
             
             dataset = weekDays.map(date => {
-              const dayData = data.filter(item => isSameDay(new Date(item.fecha), date));
-            
-              console.log('Day Data:', dayData); // Log the day data
-            
+              const dayData = data.filter(item => isSameDay(new Date(item.fecha), date));        
               return dayData.reduce((total, item) => total + item.calorias, 0);
             });
-            console.log('Dataset:', dataset); // Log the dataset
           } else if (selectedValue === 'month') {
             const currentMonth = new Date();
             const daysInMonth = getDaysInMonth(currentMonth);
@@ -65,7 +57,18 @@ const HomeNutritionCard = ({ selectedValue }) => {
 
             dataset = labels.map((label, index) => {
               const weekStart = addDays(startOfMonth(new Date()), index * 7);
-              const weekEnd = index === labels.length - 1 ? endOfMonth(new Date()) : addDays(weekStart, 6);
+              let weekEnd;
+
+              if (index === labels.length - 1) {
+                weekEnd = endOfMonth(new Date());
+              } else {
+                weekEnd = addDays(weekStart, 6);
+                weekEnd = addHours(weekEnd, 23);
+                weekEnd = addMinutes(weekEnd, 59);
+                weekEnd = addSeconds(weekEnd, 59);
+              }
+
+              console.log('Week Start:', weekStart, 'Week End:', weekEnd);
               const weekData = data.filter(item => {
                 const itemDate = new Date(item.fecha);
                 return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
@@ -73,6 +76,7 @@ const HomeNutritionCard = ({ selectedValue }) => {
               const totalCalories = weekData.reduce((total, item) => total + item.calorias, 0);
               return totalCalories / 7;
             });
+
           } else if (selectedValue === 'year') {
             labels = eachMonthOfInterval({ start: startOfYear(new Date()), end: endOfYear(new Date()) })
               .map(date => date.toLocaleString('default', { month: 'narrow' }));

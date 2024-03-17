@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { StyleSheet } from 'react-native';
-import { Card, Title } from 'react-native-paper';
+import { Card, Title, Paragraph } from 'react-native-paper';
 import { isThisWeek, isThisMonth, isThisYear } from 'date-fns';
 import { AuthContext } from '../profile/AuthContext';
 import { useFocusEffect } from '@react-navigation/native'; // Importa useFocusEffect

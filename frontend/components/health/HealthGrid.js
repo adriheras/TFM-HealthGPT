@@ -26,7 +26,7 @@ const HealthGrid = ({ data, selectedValue, selectedDate }) => {
         },
         weight: {
             translation: 'Peso corporal',
-            url: 'https://www.eltiempo.com/files/article_main_1200/uploads/2023/03/10/640bc0bab5ce5.jpeg'
+            url: 'https://ichef.bbci.co.uk/ace/ws/800/cpsprodpb/A0D9/production/_104677114_prmo_imc-nc.jpg'
         },
     };
     const [selectedParameter, setSelectedParameter] = useState(null);

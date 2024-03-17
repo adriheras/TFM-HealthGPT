@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Title } from 'react-native-paper';
 import moment from 'moment';
+import 'moment/locale/es'
 import ExerciseCard from './ExerciseCard'; // Importa ExerciseCard
 
 

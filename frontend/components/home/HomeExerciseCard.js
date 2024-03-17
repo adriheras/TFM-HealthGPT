@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
-import { Card, Title } from 'react-native-paper';
-import { StyleSheet, Dimensions } from 'react-native';
+import { Card, Title,Text, Paragraph } from 'react-native-paper';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { isThisWeek, isThisMonth, isThisYear } from 'date-fns';
 import { AuthContext } from '../profile/AuthContext';
 import { useFocusEffect } from '@react-navigation/native';
@@ -49,18 +49,18 @@ const HomeExerciseCard = ({ selectedValue }) => {
 
           const workouts = filteredData.length;
           const totalTime = filteredData.reduce((total, exercise) => total + exercise.duration, 0);
-          const totalCalories = filteredData.reduce((total, exercise) => total + exercise.calories, 0).toFixed(2); // Calcula la suma total de las calorías
+          const totalCalories = filteredData.reduce((total, exercise) => total + exercise.calories, 0) // Calcula la suma total de las calorías
           setData({ workouts, totalTime, totalCalories }); // Añade totalCalories a data
         })
         .catch(error => console.error('Error:', error));
     }, [selectedValue, token])); // Agrega selectedValue a las dependencias del useEffect
 
     const chartData = {
-      labels: ["Días", "Tiempo", "Calorías"], // Elimina "Número"
+      labels: ["Días", "Tiempo", "Calorías"],
       data: [
-        data.workouts / targetValues[selectedValue].workouts,
-        data.totalTime / targetValues[selectedValue].totalTime,
-        data.totalCalories / targetValues[selectedValue].totalCalories,
+        data.workouts && targetValues[selectedValue].workouts ? data.workouts / targetValues[selectedValue].workouts : 0,
+        data.totalTime && targetValues[selectedValue].totalTime ? data.totalTime / targetValues[selectedValue].totalTime : 0,
+        data.totalCalories && targetValues[selectedValue].totalCalories ? data.totalCalories / targetValues[selectedValue].totalCalories : 0,
       ],
     };
 
