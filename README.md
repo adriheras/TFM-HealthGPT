@@ -13,9 +13,21 @@ HealthGPT is a comprehensive health application for mobile devices focused on pe
 
 ## Installation
 
+### Local deployment
+
 1. Clone the repository.
 2. Install dependencies using `npm install`.
 3. Run the application using `npm start`.
+
+### Installing the APK on Android device
+
+1. Download the HealthGPT.apk file from the repository.
+2. On your Android device, navigate to Settings > Security.
+3. Enable the option "Unknown sources" to allow installation of apps from sources other than the Play Store.
+4. Using a file manager app, locate the downloaded HealthGPT.apk file.
+5. Tap on the apk file to initiate the installation process.
+6. Follow the on-screen instructions to complete the installation.
+7. Once installed, you can find the HealthGPT app in your device's app drawer.
 
 ## Usage
 
@@ -37,3 +49,12 @@ This project is licensed under the [MIT License](LICENSE).
 For any inquiries or support, please contact us at [support@healthgpt.com](mailto:support@healthgpt.com).
 
 Thank you for using HealthGPT! We hope it contributes to your journey towards a healthier lifestyle.
+
+
+
+
+
+
+
+
+
