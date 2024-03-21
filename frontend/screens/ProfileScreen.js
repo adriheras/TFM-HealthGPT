@@ -48,6 +48,7 @@ const ProfileScreen = () => {
     const handleLogout = async () => {
         try {
             await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.removeItem('messages');
             console.log('Logout successful');
             setIsAuthenticated(false);
         } catch (e) {
